@@ -22,7 +22,7 @@
         "noPropertyAccessFromIndexSignature": false,
         "baseUrl": ".",
         "paths": {
-            "@trifect-js/*": ["packages/*"]
+            "@trifecta-js/*": ["packages/*"]
         }
     }
 }

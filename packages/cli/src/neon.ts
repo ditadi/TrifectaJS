@@ -49,7 +49,7 @@ async function checkExistingBranches(
 ) {
     warningLog("Checking for existing branches...");
 
-    const existingBranchesResponse = await fetch(`${NEON_API_URL}/projects/${projectId}/branches`, {
+    const existingBranchesResponse = await fetchNeonAPI(`/projects/${projectId}/branches`, {
         method: "GET",
         headers: headers,
     });
@@ -84,8 +84,8 @@ async function handleExistingBranch(
     if (force) {
         warningLog("Force flag enabled. Deleting existing branch...");
 
-        const deleteBranchResponse = await fetch(
-            `${NEON_API_URL}/projects/${projectId}/branches/${existingBranch.id}`,
+        const deleteBranchResponse = await fetchNeonAPI(
+            `/projects/${projectId}/branches/${existingBranch.id}`,
             {
                 method: "DELETE",
                 headers: headers,
@@ -112,7 +112,7 @@ async function createBranchWithEndpoint(
 ): Promise<string> {
     warningLog("Creating new branch with endpoint...");
 
-    const createBranchResponse = await fetch(`${NEON_API_URL}/projects/${projectId}/branches`, {
+    const createBranchResponse = await fetchNeonAPI(`/projects/${projectId}/branches`, {
         method: "POST",
         headers: headers,
         body: JSON.stringify({
@@ -154,12 +154,9 @@ async function getConnectionString(
 ): Promise<string> {
     warningLog("Getting database and role information");
 
-    const dbResponse = await fetch(
-        `${NEON_API_URL}/projects/${projectId}/branches/${branchId}/databases`,
-        {
-            headers: headers,
-        },
-    );
+    const dbResponse = await fetchNeonAPI(`/projects/${projectId}/branches/${branchId}/databases`, {
+        headers: headers,
+    });
 
     if (!dbResponse.ok) {
         const error = await dbResponse.json();
@@ -174,10 +171,9 @@ async function getConnectionString(
 
     const defaultDB = dbList.databases[0]?.name;
 
-    const rolesResponse = await fetch(
-        `${NEON_API_URL}/projects/${projectId}/branches/${branchId}/roles`,
-        { headers: headers },
-    );
+    const rolesResponse = await fetchNeonAPI(`/projects/${projectId}/branches/${branchId}/roles`, {
+        headers: headers,
+    });
 
     if (!rolesResponse.ok) {
         const error = await rolesResponse.json();
@@ -193,8 +189,8 @@ async function getConnectionString(
 
     warningLog("Generating connection string...");
 
-    const connectionResponse = await fetch(
-        `${NEON_API_URL}/projects/${projectId}/connection_uri?` +
+    const connectionResponse = await fetchNeonAPI(
+        `/projects/${projectId}/connection_uri?` +
             `branch_id=${branchId}&database_name=${defaultDB}&role_name=${defaultRole}`,
         { headers: headers },
     );
@@ -218,14 +214,15 @@ async function waitForOperation(
     headers: Record<string, string>,
 ): Promise<void> {
     let isComplete = false;
-    let attemps = 0;
+    let attempts = 0;
+    let delay = 1000;
     const maxAttempts = 30;
 
-    while (!isComplete && attemps < maxAttempts) {
-        attemps++;
+    while (!isComplete && attempts < maxAttempts) {
+        attempts++;
 
-        const operationsResponse = await fetch(
-            `${NEON_API_URL}/projects/${projectId}/operations/${operationId}`,
+        const operationsResponse = await fetchNeonAPI(
+            `/projects/${projectId}/operations/${operationId}`,
             { headers: headers },
         );
 
@@ -238,7 +235,9 @@ async function waitForOperation(
                 throw new Error(`Operation failed: ${data.operation.action}`);
             } else {
                 process.stdout.write(".");
-                await new Promise((resolve) => setTimeout(resolve, 2000));
+
+                delay = Math.min(delay * 2 + 16000);
+                await new Promise((resolve) => setTimeout(resolve, delay));
             }
         } else {
             throw new Error("Failed to check operations status");
@@ -321,4 +320,17 @@ function createAPIHeaders(apiKey: string) {
         "Content-Type": "application/json",
         Authorization: `Bearer ${apiKey}`,
     };
+}
+
+async function fetchNeonAPI(
+    endpoint: string,
+    options: RequestInit & { headers: Record<string, string> },
+) {
+    const response = await fetch(`${NEON_API_URL}${endpoint}`, { ...options, redirect: "manual" });
+    if (response.status >= 300 && response.status < 400)
+        throw new Error(
+            `Redirect detected to ${response.headers.get("location")}. Aborted for security.`,
+        );
+
+    return response;
 }

@@ -2,7 +2,7 @@
     "name": "@trifecta-js/cli",
     "version": "0.1.0",
     "description": "Configuration and management of TrifectaJS CLI",
-    "main": "dist/index.js",
+    "main": "dist/cli.js",
     "bin": {
         "trifecta": "dist/cli.js"
     },
@@ -10,7 +10,6 @@
         "build": "tsup src/cli.ts --format cjs --dts",
         "dev": "tsup src/cli.ts --format cjs --watch",
         "lint": "tsc --noEmit",
-        "test": "jest --coverage",
         "clean": "rm -rf dist"
     },
     "dependencies": {
