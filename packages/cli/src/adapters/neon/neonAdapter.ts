@@ -490,5 +490,9 @@ export default class NeonAdapter implements DatabaseAdapter {
  * Create a Neon adapter
  */
 export function createNeonAdapter(options: Partial<NeonAdapterOptions> = {}): NeonAdapter {
-    return new NeonAdapter(options.apiKey || "", options.projectId || "", options.force || false);
+    if (!options.apiKey || !options.projectId) {
+        throw new Error("Neon adapter requires both apiKey and projectId");
+    }
+
+    return new NeonAdapter(options.apiKey, options.projectId, options.force || false);
 }
