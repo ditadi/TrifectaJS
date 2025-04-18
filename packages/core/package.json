@@ -1,0 +1,25 @@
+{
+    "name": "@trifecta-js/core",
+    "version": "0.1.0",
+    "description": "Utilities shared with TrifectJS modules",
+    "type": "module",
+    "main": "dist/index.js",
+    "module": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "exports": {
+        ".": {
+            "import": "./dist/index.js",
+            "types": "./dist/index.d.ts"
+        }
+    },
+    "dependencies": {
+        "@neondatabase/serverless": "^0.7.0",
+        "chalk": "^5.4.1",
+        "pg": "^8.11.3"
+    },
+    "devDependencies": {
+        "@types/pg": "^8.10.9",
+        "bun-types": "^1.0.25"
+    },
+    "files": ["dist/**/*"]
+}
