@@ -1,6 +1,6 @@
-import { Pool } from "pg";
+import { Pool as NeonPool } from "@neondatabase/serverless";
 import { errorLog, successLog, warningLog } from "../../log";
-import type { DatabaseCheckResult, Result } from "../types";
+import type { DatabaseAdapter, DatabaseCheckResult, Result } from "../types";
 import type {
     BranchCheckResult,
     NeonAdapterOptions,
@@ -12,7 +12,7 @@ import type {
     NeonAPIRole,
 } from "./types";
 
-export default class NeonAdapter {
+export default class NeonAdapter implements DatabaseAdapter {
     private readonly NEON_API_URL = "https://console.neon.tech/api/v2";
     private headers: Record<string, string>;
     private apiKey: string;
@@ -67,7 +67,7 @@ export default class NeonAdapter {
      */
     async runMigrations(connectionString: string): Promise<void> {
         warningLog("Connecting to database...");
-        const pool = new Pool({
+        const pool = new NeonPool({
             connectionString,
             ssl: {
                 rejectUnauthorized: false,
@@ -134,7 +134,7 @@ export default class NeonAdapter {
      * Check database connection and schema
      */
     async runCheck(connectionString: string): Promise<DatabaseCheckResult> {
-        const pool = new Pool({
+        const pool = new NeonPool({
             connectionString,
             ssl: {
                 rejectUnauthorized: false,

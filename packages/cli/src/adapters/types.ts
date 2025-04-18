@@ -33,7 +33,7 @@ export interface DatabaseCheckResult {
 /**
  * Supported database adapters
  */
-export type AdapterType = "neon" | "postgres";
+export type AdapterType = "neon";
 
 export interface BaseAdapterOptions {
     connectionString?: string;
