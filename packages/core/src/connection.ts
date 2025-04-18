@@ -49,9 +49,6 @@ export class DBConnection {
                 max: this.options.poolSize,
                 idleTimeoutMillis: this.options.idleTimeoutMillis,
                 statement_timeout: this.options.statementTimeout,
-                ssl: {
-                    rejectUnauthorized: false,
-                },
             });
 
             if (this.options.checkTables) {

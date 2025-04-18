@@ -69,9 +69,6 @@ export default class NeonAdapter implements DatabaseAdapter {
         warningLog("Connecting to database...");
         const pool = new NeonPool({
             connectionString,
-            ssl: {
-                rejectUnauthorized: false,
-            },
         });
 
         try {
@@ -136,9 +133,6 @@ export default class NeonAdapter implements DatabaseAdapter {
     async runCheck(connectionString: string): Promise<DatabaseCheckResult> {
         const pool = new NeonPool({
             connectionString,
-            ssl: {
-                rejectUnauthorized: false,
-            },
         });
 
         const requiredTables = ["trifecta_cache_entries", "trifecta_migrations"];
